@@ -8,14 +8,13 @@ on:
 jobs:
   scan:
     runs-on: ubuntu-latest
-    permissions: write-all
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Run 2ms
         run: |
-          docker run --rm -v "$PWD":/repo checkmarx/2ms \
+          docker run --user "$(id -u):$(id -g)" --rm -v "$PWD":/repo checkmarx/2ms \
             git /repo --stdout-format sarif \
             --report-path /repo/artifacts/2ms.sarif \
             --ignore-on-exit results
