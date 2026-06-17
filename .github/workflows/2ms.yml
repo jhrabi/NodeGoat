@@ -5,6 +5,9 @@ on:
   pull_request:
     branches: [ "main", "master" ]
 
+permissions:
+  security-events: read
+
 jobs:
   scan:
     runs-on: ubuntu-latest
