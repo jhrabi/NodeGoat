@@ -5,8 +5,7 @@ on:
   pull_request:
     branches: [ "main", "master" ]
 
-permissions:
-  security-events: read
+permissions: write-all
 
 jobs:
   scan:
