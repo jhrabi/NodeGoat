@@ -11,19 +11,30 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Create artifacts directory
+        run: mkdir -p artifacts
+
       - name: Run 2ms
         run: |
           docker run --user "$(id -u):$(id -g)" --rm -v "$PWD":/repo checkmarx/2ms \
             git /repo --stdout-format sarif \
-            --report-path /repo/artifacts/2ms.sarif \
+            --report-path /repo/artifacts/2ms_raw.sarif \
             --ignore-on-exit results
+
+      # Fixes the CodeQL invalid URI colon error by stripping the "git show <hash>:" prefix
+      - name: Sanitize SARIF for CodeQL
+        run: |
+          jq 'walk(if type == "object" and has("uri") then .uri |= sub("^git show [a-f0-9]+:"; "") else . end)' artifacts/2ms_raw.sarif > artifacts/2ms.sarif
+
       - name: show SARIF contents
         run: |
           cat artifacts/2ms.sarif
+
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: artifacts/2ms.sarif
