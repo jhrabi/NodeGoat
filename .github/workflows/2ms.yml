@@ -28,7 +28,23 @@ jobs:
       # Fixes the CodeQL invalid URI colon error by stripping the "git show <hash>:" prefix
       - name: Sanitize SARIF for CodeQL
         run: |
-          jq 'walk(if type == "object" and has("uri") then .uri |= sub("^git show [a-f0-9]+:"; "") else . end)' artifacts/2ms_raw.sarif > artifacts/2ms.sarif
+          
+            jq '
+          walk(
+            if type == "object" and has("uri") and (.uri | test("^git show [a-f0-9]+:")) then
+          # 1. Extract the hash from the URI string
+          (.uri | match("^git show ([a-f0-9]+):").captures[0].string) as $hash |
+          
+          # 2. Inject the hash into the properties block
+          .properties = (.properties // {}) |
+          .properties.commit = $hash |
+          
+          # 3. Clean the uri property
+          .uri |= sub("^git show [a-f0-9]+:"; "")
+          else
+          . end
+          )
+          ' artifacts/2ms_raw.sarif > artifacts/2ms.sarif
 
       - name: show SARIF contents
         run: |
