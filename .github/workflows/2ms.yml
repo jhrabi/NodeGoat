@@ -31,7 +31,7 @@ jobs:
           jq '
             walk(
               if type == "object" and has("uri") and (.uri | test("^git show [a-f0-9]+:")) then
-                (.uri | match("^git show ([a-f0-9]+):").captures.string) as $hash |
+                (.uri | match("^git show ([a-f0-9]+):").captures[0].string) as $hash |
                 .properties = (.properties // {}) |
                 .properties.commit = $hash |
                 .uri |= sub("^git show [a-f0-9]+:"; "")
