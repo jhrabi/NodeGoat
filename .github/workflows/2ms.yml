@@ -25,7 +25,7 @@ jobs:
             --report-path /repo/artifacts/2ms_raw.sarif \
             --ignore-on-exit results
 
-      # Fixes the CodeQL invalid URI colon error by stripping the "git show <hash>:" prefix and mapping the hash to properties
+      # Fixes the CodeQL invalid URI colon error by stripping the "git show <hash>:" prefix and mapping the hash to properties new
       - name: Sanitize SARIF for CodeQL
         run: |
           jq '
